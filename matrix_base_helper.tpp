@@ -22,7 +22,7 @@ void Matrix<T>::InitErrorText_() {
 
 template <class T>
 void Matrix<T>::PushValue_(const value_type value) {
-  data_type temp = data_[0][0];
+  data_type temp = std::move(data_[0][0]);
   depth_ += 1;
   data_type &r = data_[0][0];
   r.reset(new value_type[depth_]);
@@ -33,23 +33,34 @@ void Matrix<T>::PushValue_(const value_type value) {
 
 template <class T>
 void Matrix<T>::PushData_(const data_type &value) {
-  two_data temp = data_[0];
+  two_data temp = std::move(data_[0]);
   columns_ += 1;
-  two_data &r = data_[0];
-  r.reset(new data_type[columns_]);
+  two_data &r_r = data_[0];
+  r_r.reset(new data_type[columns_]);
   for (size_type i = 0; i < columns_ - 1; ++i)
-    r[i] = temp[i];
-  r[columns_ - 1] = value;
+    r_r[i] = std::move(temp[i]);
+  data_type &r = r_r[columns_ - 1];
+  r.reset(new value_type[depth_]);
+  for (size_type i = 0; i < depth_; ++i)
+    r[i] = value[i];
 }
 
 template <class T>
 void Matrix<T>::PushTwo_(const two_data &value) {
-  trip_data temp = data_;
+  trip_data temp = std::move(data_);
   rows_ += 1;
   data_.reset(new two_data[rows_]);
   for (size_type i = 0; i < rows_ - 1; ++i)
-    data_[i] = temp[i];
-  data_[rows_ - 1] = value;
+    data_[i] = std::move(temp[i]);
+  two_data &r_r = data_[rows_ - 1];
+  r_r.reset(new data_type[columns_]);
+  for (size_type i = 0; i < columns_; ++i) {
+    data_type &r = r_r[i];
+    r.reset(new value_type[depth_]);
+    data_type &t = value[i];
+    for (size_type j = 0; j < depth_; ++j)
+      r[j] = t[j];
+  }
 }
 
 template <class T>

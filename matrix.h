@@ -33,6 +33,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <ctime>
 #include <iostream>
 #include <memory>
 
@@ -138,9 +139,15 @@ template <class T> class Matrix {
   void PushBack(const std::vector<value_type> &vector);
   void PushBack(const std::initializer_list<value_type> value);
 
+  void PushBack(const Matrix<value_type> &other);
+
   const two_data& operator[](size_type x) const;
   const size_type* Shape() const noexcept;
   const size_type Size() const noexcept;
+  const size_type GetRows() const noexcept;
+  const size_type GetCollumns() const noexcept;
+  const size_type GetDepth() const noexcept;
+
 
   void Zeros();
   // Позволяет пересобрать объект по новым размерам и заполнить значением
@@ -165,6 +172,14 @@ template <class T> class Matrix {
   void Completion(const size_type x, const size_type y, const value_type dex);
   // Позволяет пересобрать объект по новым размерам и заполнить значением
   void Completion(const size_type x, const value_type dex);
+  void CompletionToDo(const value_type tos = 0, const value_type dos = 0);
+  void CompletionEmpty(const value_type dex);
+  void CompletionEmptyToDo();
+
+  Matrix Noise(const value_type x) const;
+  Matrix NoiseDouble() const;
+  void NoiseSet(const value_type x);
+  void NoiseDoubleSet();
 
   void Resize(const size_type x, const size_type y, const size_type z);
   void Resize(const size_type x, const size_type y);

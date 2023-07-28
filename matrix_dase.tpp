@@ -182,7 +182,8 @@ void Matrix<T>::PushBack(const two_vector &vector) {
 
 template <class T>
 void Matrix<T>::PushBack(const std::vector<value_type> &vector) {
-  if (rows_ > 1 || (depth_ && vector.size() != depth_)) throw std::out_of_range(error_text[SIZE_MATRIX]);if (!rows_) {
+  if (rows_ > 1 || (depth_ && vector.size() != depth_)) throw std::out_of_range(error_text[SIZE_MATRIX]);
+  if (!rows_) {
     data_.reset(new two_data[1]);
     rows_ = 1;
     depth_ = vector.size();
@@ -193,6 +194,38 @@ void Matrix<T>::PushBack(const std::vector<value_type> &vector) {
 template <class T>
 void Matrix<T>::PushBack(const std::initializer_list<value_type> value) {
   PushBack(std::vector<value_type>(value));
+}
+
+template <class T>
+void Matrix<T>::PushBack(const Matrix<value_type> &other) {
+  if (other.rows_ > 1) throw std::out_of_range(error_text[SIZE_MATRIX]);
+  if (rows_) {
+    if (other.columns_ > 1 && (columns_ != other.columns_ || depth_ != other.depth_))
+      throw std::out_of_range(error_text[SIZE_MATRIX]);
+    else if (other.depth_ > 1 && depth_ != other.depth_)
+      throw std::out_of_range(error_text[SIZE_MATRIX]);
+  }
+  if (other.columns_ > 1) {
+    if (!rows_) {
+      columns_ = other.columns_;
+      depth_ = other.depth_;
+    }
+    PushTwo_(other.data_[0]);
+  } else if (other.depth_ > 1) {
+    if (!rows_) {
+      data_.reset(new two_data[1]);
+      rows_ = 1;
+      depth_ = other.depth_;
+    }
+    PushData_(other.data_[0][0]);
+  } else {
+    if (!rows_) {
+      rows_ = columns_ = depth_ = 1;
+      NewMatrix_(other.data_[0][0][0]);
+    } else {
+      PushValue_(other.data_[0][0][0]);
+    }
+  }
 }
 
 template <class T>
@@ -218,6 +251,21 @@ const typename Matrix<T>::size_type* Matrix<T>::Shape() const noexcept {
 template <class T>
 const typename Matrix<T>::size_type Matrix<T>::Size() const noexcept {
   return rows_ * columns_ * depth_;
+}
+
+template <class T>
+const typename Matrix<T>::size_type Matrix<T>::GetRows() const noexcept {
+  return rows_;
+}
+
+template <class T>
+const typename Matrix<T>::size_type Matrix<T>::GetCollumns() const noexcept {
+  return columns_;
+}
+
+template <class T>
+const typename Matrix<T>::size_type Matrix<T>::GetDepth() const noexcept {
+  return depth_;
 }
 
 template <class T>
@@ -260,6 +308,108 @@ void Matrix<T>::Ones(const size_type x, const size_type y) {
 template <class T>
 void Matrix<T>::Ones(const size_type x) {
   Ones(1, 1, x);
+}
+
+template <class T>
+void Matrix<T>::Completion(const size_type x, const size_type y, const size_type z, const value_type dex) {
+  ConstructMatrix_(x, y, z, dex);
+}
+
+template <class T>
+void Matrix<T>::Completion(const size_type x, const size_type y, const value_type dex) {
+  Completion(1, x, y);
+}
+
+template <class T>
+void Matrix<T>::Completion(const size_type x, const value_type dex) {
+  Completion(1, 1, x);
+}
+
+template <class T>
+void Matrix<T>::CompletionToDo(const value_type tos, const value_type dos) {
+  value_type dot = dos;
+  if (!dot) dot = rows_ * columns_ * depth_;
+  value_type t = tos;
+  for (size_type i = 0; i < rows_ && t < dot; ++i) {
+    two_data &r_r = data_[i];
+    for (size_type j = 0; j < columns_ && t < dot; ++j) {
+      data_type &r = r_r[j];
+      for (size_type k = 0; k < depth_ && t < dot; ++k)
+        r[k] = t++;
+    }
+  }
+}
+
+template <class T>
+void Matrix<T>::CompletionEmpty(const value_type dex) {
+  for (size_type i = 0; i < rows_; ++i) {
+    two_data &r_r = data_[i];
+    for (size_type j = 0; j < columns_; ++j) {
+      data_type &r = r_r[j];
+      for (size_type k = 0; k < depth_; ++k)
+        if (!r[k]) r[k] = dex;
+    }
+  }
+}
+
+template <class T>
+void Matrix<T>::CompletionEmptyToDo() {
+  value_type dex = 1;
+  for (size_type i = 0; i < rows_; ++i) {
+    two_data &r_r = data_[i];
+    for (size_type j = 0; j < columns_; ++j) {
+      data_type &r = r_r[j];
+      for (size_type k = 0; k < depth_; ++k) {
+        auto &t = r[k];
+        if (t = dex)
+          dex += 1;
+        else if (t = 0)
+          t = dex;
+        else
+          dex = t + 1;
+      }
+    }
+  }
+}
+
+template <class T>
+typename Matrix<T>::Matrix Matrix<T>::Noise(const value_type x) const {
+  Matrix result(*this);
+  result.NoiseSet(x);
+  return result;
+}
+
+template <class T>
+typename Matrix<T>::Matrix Matrix<T>::NoiseDouble() const {
+  Matrix result(*this);
+  result.NoiseDoubleSet();
+  return result;
+}
+
+template <class T>
+void Matrix<T>::NoiseSet(const value_type x) {
+  srand(time(0));
+  for (size_type i = 0; i < rows_; ++i) {
+    two_data &r_r = data_[i];
+    for (size_type j = 0; j < columns_; ++j) {
+      data_type &r = r_r[j];
+      for (size_type k = 0; k < depth_; ++k)
+        r[k] = std::fmod(rand(), x + 1);
+    }
+  }
+}
+
+template <class T>
+void Matrix<T>::NoiseDoubleSet() {
+  srand(time(0));
+  for (size_type i = 0; i < rows_; ++i) {
+    two_data &r_r = data_[i];
+    for (size_type j = 0; j < columns_; ++j) {
+      data_type &r = r_r[j];
+      for (size_type k = 0; k < depth_; ++k)
+        r[k] = (value_type)rand() / (value_type)RAND_MAX;
+    }
+  }
 }
 
 template <class T>
