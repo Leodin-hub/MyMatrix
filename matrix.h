@@ -27,8 +27,8 @@
   std::out_of_range и std::logic_error.*/
 //////////////////////////////////////////////////////////////
 
-#ifndef MATRIX_MATRIX_H
-#define MATRIX_MATRIX_H
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <vector>
 #include <string>
@@ -467,4 +467,4 @@ template <class T> class Matrix<T>::Iterator {
 #include "matrix_algebraic.tpp"
 #include "matrix_iterator.tpp"
 
-#endif // MATRIX_MATRIX_H
+#endif // MATRIX_H
