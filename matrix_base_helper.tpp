@@ -202,7 +202,7 @@ typename Matrix<T>::data_type Matrix<T>::Lapsha_() const {
 }
 
 template <class T>
-typename Matrix<T>::trip_data Matrix<T>::LapshaToData_(const size_type x, const size_type y, const size_type z, const size_type xyz, const data_type &value) const {
+typename Matrix<T>::trip_data Matrix<T>::LapshaToData_(const size_type x, const size_type y, const size_type z, const size_type xyz, const data_type &value) {
   trip_data result = NewMatrix_(x, y, z);
   for (size_type i = 0, m = 0; i < x && m < xyz; ++i) {
     two_data &r_t = result[i];
@@ -233,8 +233,12 @@ const bool Matrix<T>::IsEqualShape_(const Matrix &other1, const Matrix &other2) 
 template <class T>
 const bool Matrix<T>::IsEqualTwoData_(const size_type x, const size_type y, const two_data &value1, const two_data &value2) const {
   bool result = true;
-  for (size_type i = 0; i < x && result; ++i)
-    result = IsEqualData_(y, value1[i], value2[i]);
+  for (size_type i = 0; i < x && result; ++i) {
+    auto &r = value1[i];
+    auto &t = value2[i];
+    for (size_type j = 0; j < y && result; ++j)
+      result = r[j] == t[j];
+  }
   return result;
 }
 

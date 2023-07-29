@@ -401,7 +401,7 @@ template <class T> class Matrix {
   trip_data TripValue_(const size_type x, const value_type *value);
 
   data_type Lapsha_() const;
-  trip_data LapshaToData_(const size_type x, const size_type y, const size_type z, const size_type xyz, const data_type &value) const;
+  trip_data LapshaToData_(const size_type x, const size_type y, const size_type z, const size_type xyz, const data_type &value);
   
   const bool IsQuadratish_(const Matrix &other) const;
   const bool IsEqualMull_(const Matrix &other1, const Matrix &other2) const;
