@@ -438,6 +438,11 @@ void Matrix<T>::Resize(const size_type x) {
 }
 
 template <class T>
+void Matrix<T>::Clear() {
+  RemoveMatrix_();
+}
+
+template <class T>
 typename Matrix<T>::trip_vector Matrix<T>::ToTripVector() const {
   if (rows_ == 0) throw std::out_of_range(error_text[EMPTY]);
   trip_vector result;

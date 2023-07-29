@@ -185,6 +185,8 @@ template <class T> class Matrix {
   void Resize(const size_type x, const size_type y);
   void Resize(const size_type x);
 
+  void Clear();
+
   // Преобразует объект в 3-мерный вектор
   trip_vector ToTripVector() const;
   // Преобразует объект в 2-мерный вектор
