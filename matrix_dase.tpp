@@ -76,7 +76,7 @@ Matrix(other.rows_, other.columns_, other.depth_, other.data_) { ; }
 
 template <class T>
 Matrix<T>::Matrix(Matrix &&other) {
-  if (*this == other) throw std::out_of_range(error_text[AFIGEL]);
+  if (data_ == other.data_) throw std::out_of_range(error_text[AFIGEL]);
   rows_ = other.rows_;
   columns_ = other.columns_;
   depth_ = other.depth_;
@@ -94,7 +94,7 @@ typename Matrix<T>::Matrix& Matrix<T>::operator=(const Matrix &other) {
 
 template <class T>
 typename Matrix<T>::Matrix& Matrix<T>::operator=(Matrix &&other) {
-  if (*this == other) throw std::out_of_range(error_text[AFIGEL]);
+  if (data_ == other.data_) throw std::out_of_range(error_text[AFIGEL]);
   if (!rows_)
     RemoveMatrix_();
   rows_ = other.rows_;

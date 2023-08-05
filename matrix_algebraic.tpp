@@ -506,15 +506,17 @@ template <class T>
 typename Matrix<T>::Matrix Matrix<T>::Minor(const size_type x, const size_type y) const {
   if (rows_ == 0) throw std::out_of_range(error_text[EMPTY]);
   if (rows_ > 1) throw std::out_of_range(error_text[DIMENSIONAL]);
-  if (!IsQuadratish_(*this)) throw std::logic_error(error_text[NOT_SQUARE]);
+  // if (!IsQuadratish_(*this)) throw std::logic_error(error_text[NOT_SQUARE]);
   Matrix result(columns_ - 1, depth_ - 1);
   two_data &r_r = data_[0];
   two_data &t_t = result.data_[0];
   for (size_type i = 0, z = 0; i < columns_; ++i) {
     data_type &r = r_r[i];
     for (size_type j = 0; j < depth_; ++j)
-      if (i != x && j != y)
-        t_t[z / (columns_ - 1)][z++ % (columns_ - 1)] = r[j];
+      if (i != x && j != y) {
+        t_t[z / (columns_ - 1)][z % (columns_ - 1)] = r[j];
+        ++z;
+      }
   }
   return result;
 }
